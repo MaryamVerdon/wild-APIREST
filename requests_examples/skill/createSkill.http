@@ -2,5 +2,5 @@ POST http://localhost:3000/skills
 Content-Type: application/json
 
 {
-  "name": "JS"
+  "name": "PHP"
 }
