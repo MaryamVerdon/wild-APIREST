@@ -2,10 +2,12 @@ const express = require("express");
 const db = require("./db");
 const wildersController = require("./controller/wilders");
 const skillsController = require("./controller/skills");
+const cors = require("cors");
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 app.get("/hello", (req, res) => {
   console.log("new request from client");
@@ -26,7 +28,7 @@ app.delete("/skills/:id", skillsController.delete);
 
 async function start() {
   await db.initialize();
-  app.listen(3000, () => {
+  app.listen(4000, () => {
     console.log("server ready");
   });
 }
