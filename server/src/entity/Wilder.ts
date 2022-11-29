@@ -1,23 +1,23 @@
-const { EntitySchema } = require("typeorm");
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  JoinTable,
+} from "typeorm";
+import Skill from "./Skill";
 
-module.exports = new EntitySchema({
-  name: "Wilder",
-  columns: {
-    id: {
-      type: "int",
-      primary: true,
-      generated: true,
-    },
-    name: {
-      type: "text",
-    },
-  },
-  relations: {
-    skills: {
-      target: "Skill",
-      type: "many-to-many",
-      joinTable: true,
-      eager: true,
-    },
-  },
-});
+@Entity()
+class Wilder {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @ManyToMany(() => Skill, { eager: true })
+  @JoinTable()
+  skills: Skill[];
+}
+
+export default Wilder;

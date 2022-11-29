@@ -1,9 +1,10 @@
-const { Like } = require("typeorm");
-const db = require("../db");
-const Skill = require("../entity/Skill");
-const Wilder = require("../entity/Wilder");
+import { Like } from "typeorm";
+import db from "../db";
+import Skill from "../entity/Skill";
+import Wilder from "../entity/Wilder";
+import { Controller } from "../types/Controller";
 
-module.exports = {
+const wildersController: Controller = {
   create: async (req, res) => {
     const { name } = req.body;
     if (name.length > 100 || name.length === 0) {
@@ -11,18 +12,6 @@ module.exports = {
         .status(422)
         .send("the name should have a length between 1 and 100 characters");
     }
-
-    /*
-    db
-      .getRepository(Wilder)
-      .save({ name })
-      .then((created) => {
-        res.status(201).send(created);
-      })
-      .catch(() => {
-        res.send('error while creating wilder');
-      });
-    */
 
     try {
       const created = await db.getRepository(Wilder).save({ name });
@@ -36,7 +25,12 @@ module.exports = {
     const { nameContains } = req.query;
     try {
       const wilders = await db.getRepository(Wilder).find({
-        where: { name: nameContains ? Like(`%${nameContains}%`) : undefined },
+        where: {
+          name:
+            typeof nameContains === "string"
+              ? Like(`%${nameContains}%`)
+              : undefined,
+        },
       });
       res.send(wilders);
     } catch (err) {
@@ -56,7 +50,7 @@ module.exports = {
       const { affected } = await db
         .getRepository(Wilder)
         .update(req.params.id, req.body);
-      if (affected) return res.send("wilder updated");
+      if (affected !== 0) return res.send("wilder updated");
       res.sendStatus(404);
     } catch (err) {
       console.error(err);
@@ -66,7 +60,7 @@ module.exports = {
   delete: async (req, res) => {
     try {
       const { affected } = await db.getRepository(Wilder).delete(req.params.id);
-      if (affected) return res.send("wilder deleted");
+      if (affected !== 0) return res.send("wilder deleted");
       res.sendStatus(404);
     } catch (err) {
       console.error(err);
@@ -80,7 +74,7 @@ module.exports = {
     try {
       const wilderToUpdate = await db
         .getRepository(Wilder)
-        .findOneBy({ id: wilderId });
+        .findOneBy({ id: parseInt(wilderId, 10) });
 
       if (wilderToUpdate === null)
         return res.status(404).send("wilder not found");
@@ -91,7 +85,6 @@ module.exports = {
 
       if (skillToAdd === null) return res.status(404).send("skill not found");
 
-      //wilderToUpdate.skills.push(skillToAdd)
       wilderToUpdate.skills = [...wilderToUpdate.skills, skillToAdd];
 
       await db.getRepository(Wilder).save(wilderToUpdate);
@@ -108,14 +101,14 @@ module.exports = {
     try {
       const skillToRemove = await db
         .getRepository(Skill)
-        .findOneBy({ id: skillId });
+        .findOneBy({ id: parseInt(skillId, 10) });
 
       if (skillToRemove === null)
         return res.status(404).send("skill not found");
 
       const wilderToUpdate = await db
         .getRepository(Wilder)
-        .findOneBy({ id: wilderId });
+        .findOneBy({ id: parseInt(wilderId, 10) });
 
       if (wilderToUpdate === null)
         return res.status(404).send("wilder not found");
@@ -135,3 +128,5 @@ module.exports = {
     }
   },
 };
+
+export default wildersController;

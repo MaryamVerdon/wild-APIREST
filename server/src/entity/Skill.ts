@@ -1,16 +1,12 @@
-const { EntitySchema } = require("typeorm");
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-module.exports = new EntitySchema({
-  name: "Skill",
-  columns: {
-    id: {
-      primary: true,
-      type: "int",
-      generated: true,
-    },
-    name: {
-      type: "text",
-      unique: true,
-    },
-  },
-});
+@Entity()
+class Skill {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
+  name: string;
+}
+
+export default Skill;

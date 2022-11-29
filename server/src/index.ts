@@ -1,8 +1,8 @@
-const express = require("express");
-const db = require("./db");
-const wildersController = require("./controller/wilders");
-const skillsController = require("./controller/skills");
-const cors = require("cors");
+import express from "express"
+import db from "./db"
+import wildersController from "./controller/wilders"
+import skillsController from "./controller/skills"
+import cors from "cors"
 
 const app = express();
 
