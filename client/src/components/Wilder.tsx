@@ -1,6 +1,10 @@
 import { Wilder as WilderType } from "../types/Wilder";
 
-function Wilder({ name }: WilderType) {
+interface WilderProps {
+  wilder: WilderType;
+}
+
+function Wilder({ wilder: { name } }: WilderProps) {
   return (
     <div className="flex bg-white p-4 rounded-2xl mb-4 shadow-md">
       <img

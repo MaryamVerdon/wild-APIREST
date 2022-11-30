@@ -39,8 +39,8 @@ function App() {
         <WilderForm onWilderCreated={addWilderToState} />
         {error && <div className="text-red-600">{error}</div>}
         <ul ref={animationParent}>
-          {wilders.map((wilder, idx) => (
-            <Wilder name={wilder.name} key={idx} />
+          {wilders.map((wilder) => (
+            <Wilder wilder={wilder} key={wilder.id} />
           ))}
         </ul>
       </main>
