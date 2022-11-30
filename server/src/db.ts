@@ -1,6 +1,6 @@
-const { DataSource } = require("typeorm");
-const Skill = require("./entity/Skill");
-const Wilder = require("./entity/Wilder");
+import { DataSource } from "typeorm";
+import Skill from "./entity/Skill";
+import Wilder from "./entity/Wilder";
 
 const datasource = new DataSource({
   type: "sqlite",
@@ -10,4 +10,4 @@ const datasource = new DataSource({
   logging: ["query", "error"],
 });
 
-module.exports = datasource;
+export default datasource;

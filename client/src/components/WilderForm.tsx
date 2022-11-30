@@ -1,8 +1,13 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
+import { Wilder } from "../types/Wilder";
 
-export default function WilderForm({ onWilderCreated }) {
-  const [name, setName] = useState("");
+interface WilderFormProps {
+  onWilderCreated: (w: Wilder) => void;
+}
+
+export default function WilderForm({ onWilderCreated }: WilderFormProps) {
+  const [name, setName] = useState<Wilder["name"]>("");
   const [processing, setProcessing] = useState(false);
 
   const createWilder = async () => {
@@ -20,14 +25,13 @@ export default function WilderForm({ onWilderCreated }) {
     }
   };
 
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    createWilder();
+  };
+
   return (
-    <form
-      className="pt-4"
-      onSubmit={(e) => {
-        e.preventDefault();
-        createWilder();
-      }}
-    >
+    <form className="pt-4" onSubmit={handleSubmit}>
       <label htmlFor="name" className="mr-2">
         <span className="mr-3">Name</span>
         <input
