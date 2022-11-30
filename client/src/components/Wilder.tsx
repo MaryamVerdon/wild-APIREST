@@ -1,4 +1,6 @@
-function Wilder({ name }) {
+import { Wilder as WilderType } from "../types/Wilder";
+
+function Wilder({ name }: WilderType) {
   return (
     <div className="flex bg-white p-4 rounded-2xl mb-4 shadow-md">
       <img

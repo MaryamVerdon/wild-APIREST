@@ -1,7 +1,12 @@
 import clsx from "clsx";
 import { useState } from "react";
 
-export default function Skill({ title, votes }) {
+interface ISkill {
+  title: string;
+  votes: number;
+}
+
+export default function Skill({ title, votes }: ISkill) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (

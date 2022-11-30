@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import WilderForm from "./components/WilderForm";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { Wilder as WilderType } from "./types/Wilder";
 
 function App() {
-  const [wilders, setWilders] = useState([]);
-  const [error, setError] = useState(null);
-  const [animationParent] = useAutoAnimate();
+  const [wilders, setWilders] = useState<WilderType[]>([]);
+  const [error, setError] = useState("");
+  const [animationParent] = useAutoAnimate<HTMLUListElement>();
 
   const loadWilders = async () => {
     try {
@@ -26,7 +27,7 @@ function App() {
     loadWilders();
   }, []);
 
-  const addWilderToState = (newWilder) => {
+  const addWilderToState = (newWilder: WilderType) => {
     const newList = [...wilders, newWilder];
     setWilders(newList);
   };
@@ -39,7 +40,7 @@ function App() {
         {error && <div className="text-red-600">{error}</div>}
         <ul ref={animationParent}>
           {wilders.map((wilder, idx) => (
-            <Wilder name={wilder.name} key={idx} skills={wilder.skills} />
+            <Wilder name={wilder.name} key={idx} />
           ))}
         </ul>
       </main>
