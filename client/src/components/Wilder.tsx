@@ -46,7 +46,13 @@ const Wilder = ({
 
             <ul className="flex flex-wrap">
               {skills.slice().map((skill, index) => (
-                <Skill key={index} title={skill.name} />
+                <Skill
+                  key={index}
+                  title={skill.name}
+                  wilderId={id}
+                  skillId={skill.id}
+                  votes={skill.votes}
+                />
               ))}
             </ul>
           </div>

@@ -40,3 +40,11 @@ export async function addSkillToWilder(wilderId: number, skillId: number) {
 export async function removeSkillFromWilder(wilderId: number, skillId: number) {
   return API.delete(`/wilders/${wilderId}/skills/${skillId}`);
 }
+
+export async function updateGrade(
+  wilderId: number | string,
+  skillId: number | string,
+  votes: number
+) {
+  return API.patch(`/wilders/${wilderId}/skills/${skillId}`, { votes });
+}

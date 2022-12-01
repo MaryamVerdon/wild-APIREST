@@ -194,11 +194,10 @@ const wildersController: Controller = {
 
       console.log(wilderToUpdate);
 
-      /*
-      wilderToUpdate.skills = wilderToUpdate.skills.filter(
-        (skill) => skill.id.toString() !== skillToRemove.id.toString()
-      );
-      */
+      await db.getRepository(Grade).delete({
+        wilderId: wilderToUpdate.id,
+        skillId: skillToRemove.id,
+      });
 
       await db.getRepository(Wilder).save(wilderToUpdate);
 
@@ -207,6 +206,18 @@ const wildersController: Controller = {
       console.error(error);
       res.status(500).send("error while removing skill");
     }
+  },
+  updateGrade: async (req, res) => {
+    const grade = await db.getRepository(Grade).findOne({
+      where: {
+        wilderId: parseInt(req.params.wilderId, 10),
+        skillId: parseInt(req.params.skillId, 10),
+      },
+    });
+    if (grade === null) return res.sendStatus(404);
+    grade.votes = req.body.votes;
+    await db.getRepository(Grade).save(grade);
+    res.send("OK");
   },
 };
 

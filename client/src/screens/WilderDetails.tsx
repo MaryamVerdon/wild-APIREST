@@ -31,7 +31,13 @@ export default function WilderDetails() {
           {city && <p className="text-center text-gray italic">from {city}</p>}
           <ul className="flex flex-wrap justify-center mt-8 mb-8">
             {skills.map((skill, index) => (
-              <Skill key={index} title={skill.name} />
+              <Skill
+                key={index}
+                title={skill.name}
+                wilderId={wilder.id}
+                skillId={skill.id}
+                votes={skill.votes}
+              />
             ))}
           </ul>
           {bio && <p className="text-justify">{bio}</p>}
