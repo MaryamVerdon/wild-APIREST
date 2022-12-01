@@ -1,47 +1,43 @@
-import axios from "axios";
-import { useState, FormEvent } from "react";
-import { Wilder } from "../types/Wilder";
+import React, { useState, FormEvent, useRef } from "react";
+import { IWilder, IWilderInput } from "../types/IWilder";
+import { createWilder } from "../services/wilders";
+import toast from "react-hot-toast";
 
 interface WilderFormProps {
-  onWilderCreated: (w: Wilder) => void;
+  onWilderCreated: (w: IWilder) => void;
 }
 
 export default function WilderForm({ onWilderCreated }: WilderFormProps) {
-  const [name, setName] = useState<Wilder["name"]>("");
+  const [name, setName] = useState<IWilderInput["name"]>("");
   const [processing, setProcessing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const createWilder = async () => {
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
     try {
       setProcessing(true);
-      const { data } = await axios.post("http://localhost:4000/wilders", {
-        name,
-      });
+      onWilderCreated(await createWilder({ name }));
       setName("");
-      onWilderCreated(data);
+      setTimeout(() => inputRef.current?.focus(), 100);
     } catch (err) {
-      console.error(err);
+      toast.error("cannot create wilder");
     } finally {
       setProcessing(false);
     }
   };
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    createWilder();
-  };
-
   return (
-    <form className="pt-4" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="pt-4">
       <label htmlFor="name" className="mr-2">
         <span className="mr-3">Name</span>
         <input
-          required
-          disabled={processing}
+          ref={inputRef}
           type="text"
           maxLength={30}
           id="name"
-          value={name}
+          disabled={processing}
           onChange={(e) => setName(e.target.value)}
+          value={name}
         />
       </label>
       <button type="submit" disabled={processing}>
