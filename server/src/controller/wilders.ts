@@ -38,6 +38,18 @@ const wildersController: Controller = {
       res.status(500).send("error while reading wilders");
     }
   },
+  readOne: async (req, res) => {
+    try {
+      const wilder = await db.getRepository(Wilder).findOne({
+        where: { id: parseInt(req.params.id, 10) },
+      });
+      if (wilder === null) return res.sendStatus(404);
+      res.send(wilder);
+    } catch (err) {
+      console.error(err);
+      res.send("error while reading wilder");
+    }
+  },
   update: async (req, res) => {
     const { name } = req.body;
     if (name.length > 100 || name.length === 0) {
@@ -47,11 +59,22 @@ const wildersController: Controller = {
     }
 
     try {
-      const { affected } = await db
+      const { name, bio, city, skills, avatarUrl } = req.body;
+      const wilder = await db
         .getRepository(Wilder)
-        .update(req.params.id, req.body);
-      if (affected !== 0) return res.send("wilder updated");
-      res.sendStatus(404);
+        .findOne({ where: { id: parseInt(req.params.id, 10) } });
+
+      if (wilder === null) return res.sendStatus(404);
+
+      wilder.name = name;
+      wilder.bio = bio;
+      wilder.city = city;
+      wilder.avatarUrl = avatarUrl;
+      wilder.skills = skills;
+
+      await db.getRepository(Wilder).save(wilder);
+
+      res.send("wilder updated");
     } catch (err) {
       console.error(err);
       res.status(500).send("error while updating wilder");

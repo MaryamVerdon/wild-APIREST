@@ -15,6 +15,15 @@ class Wilder {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  bio?: string;
+
+  @Column({ nullable: true })
+  city?: string;
+
+  @Column({ nullable: true })
+  avatarUrl?: string;
+
   @ManyToMany(() => Skill, { eager: true })
   @JoinTable()
   skills: Skill[];
