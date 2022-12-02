@@ -16,6 +16,7 @@ app.patch("/wilders/:id", wildersController.update);
 app.delete("/wilders/:id", wildersController.delete);
 app.post("/wilders/:wilderId/skills", wildersController.addSkill);
 app.delete("/wilders/:wilderId/skills/:skillId", wildersController.removeSkill);
+app.patch("/wilders/:wilderId/skills/:skillId", wildersController.updateGrade);
 
 app.post("/skills", skillsController.create);
 app.get("/skills", skillsController.read);

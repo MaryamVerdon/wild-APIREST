@@ -1,5 +1,6 @@
 import { Like } from "typeorm";
 import db from "../db";
+import Grade from "../entity/Grade";
 import Skill from "../entity/Skill";
 import Wilder from "../entity/Wilder";
 import { Controller } from "../types/Controller";
@@ -31,8 +32,23 @@ const wildersController: Controller = {
               ? Like(`%${nameContains}%`)
               : undefined,
         },
+        relations: { grades: { skill: true } },
       });
-      res.send(wilders);
+      res.send(
+        wilders.map((wilder) => {
+          return {
+            ...wilder,
+            grades: undefined,
+            skills: wilder.grades.map((g) => {
+              return {
+                id: g.skill.id,
+                name: g.skill.name,
+                votes: g.votes,
+              };
+            }),
+          };
+        })
+      );
     } catch (err) {
       console.error(err);
       res.status(500).send("error while reading wilders");
@@ -42,9 +58,20 @@ const wildersController: Controller = {
     try {
       const wilder = await db.getRepository(Wilder).findOne({
         where: { id: parseInt(req.params.id, 10) },
+        relations: { grades: { skill: true } },
       });
       if (wilder === null) return res.sendStatus(404);
-      res.send(wilder);
+      res.send({
+        ...wilder,
+        grades: undefined,
+        skills: wilder.grades.map((g) => {
+          return {
+            id: g.skill.id,
+            name: g.skill.name,
+            votes: g.votes,
+          };
+        }),
+      });
     } catch (err) {
       console.error(err);
       res.send("error while reading wilder");
@@ -59,10 +86,11 @@ const wildersController: Controller = {
     }
 
     try {
-      const { name, bio, city, skills, avatarUrl } = req.body;
-      const wilder = await db
-        .getRepository(Wilder)
-        .findOne({ where: { id: parseInt(req.params.id, 10) } });
+      const { name, bio, city, skills = [], avatarUrl } = req.body;
+      const wilder = await db.getRepository(Wilder).findOne({
+        where: { id: parseInt(req.params.id, 10) },
+        relations: { grades: { skill: true } },
+      });
 
       if (wilder === null) return res.sendStatus(404);
 
@@ -70,9 +98,35 @@ const wildersController: Controller = {
       wilder.bio = bio;
       wilder.city = city;
       wilder.avatarUrl = avatarUrl;
-      wilder.skills = skills;
 
       await db.getRepository(Wilder).save(wilder);
+
+      const existingSkillIds = wilder.grades.map((g) => g.skill.id);
+      const newSkillIds: number[] = skills.map((s: Skill) => s.id);
+
+      const skillIdsToAdd = newSkillIds.filter(
+        (id) => !existingSkillIds.includes(id)
+      );
+
+      await db.getRepository(Grade).save(
+        skillIdsToAdd.map((skillId) => ({
+          skillId,
+          wilderId: wilder.id,
+        }))
+      );
+
+      const skillIdsToRemove = existingSkillIds.filter(
+        (existingId) => !newSkillIds.includes(existingId)
+      );
+
+      await Promise.all(
+        skillIdsToRemove.map(
+          async (skillId: number) =>
+            await db
+              .getRepository(Grade)
+              .delete({ wilderId: wilder.id, skillId })
+        )
+      );
 
       res.send("wilder updated");
     } catch (err) {
@@ -108,9 +162,11 @@ const wildersController: Controller = {
 
       if (skillToAdd === null) return res.status(404).send("skill not found");
 
-      wilderToUpdate.skills = [...wilderToUpdate.skills, skillToAdd];
+      // wilderToUpdate.skills = [...wilderToUpdate.skills, skillToAdd];
 
-      await db.getRepository(Wilder).save(wilderToUpdate);
+      await db
+        .getRepository(Grade)
+        .save({ skill: skillToAdd, wilder: wilderToUpdate });
 
       res.send("skill added to wilder");
     } catch (err) {
@@ -138,9 +194,10 @@ const wildersController: Controller = {
 
       console.log(wilderToUpdate);
 
-      wilderToUpdate.skills = wilderToUpdate.skills.filter(
-        (skill) => skill.id.toString() !== skillToRemove.id.toString()
-      );
+      await db.getRepository(Grade).delete({
+        wilderId: wilderToUpdate.id,
+        skillId: skillToRemove.id,
+      });
 
       await db.getRepository(Wilder).save(wilderToUpdate);
 
@@ -149,6 +206,18 @@ const wildersController: Controller = {
       console.error(error);
       res.status(500).send("error while removing skill");
     }
+  },
+  updateGrade: async (req, res) => {
+    const grade = await db.getRepository(Grade).findOne({
+      where: {
+        wilderId: parseInt(req.params.wilderId, 10),
+        skillId: parseInt(req.params.skillId, 10),
+      },
+    });
+    if (grade === null) return res.sendStatus(404);
+    grade.votes = req.body.votes;
+    await db.getRepository(Grade).save(grade);
+    res.send("OK");
   },
 };
 
